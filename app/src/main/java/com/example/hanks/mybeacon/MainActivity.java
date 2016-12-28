@@ -6,9 +6,11 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.WindowDecorActionBar;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -76,7 +78,87 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             //搜尋回饋
-            Log.d("TAG", "BLE device: " + device.getName());
+            //Log.d("TAG", "BLE device: " + device.getName());
+            int startByte = 2;
+            boolean patternFound = false;
+            // 尋找iBeacon
+            // 先依序找第2到第8陣列的元素
+            while (startByte <= 5){
+                // Identifies an iBeacon
+                if (((int)scanRecord[startByte + 2] & 0xff) == 0x02 &&
+                        // Indentifies correct data length
+                        ((int)scanRecord[startByte + 3] & 0xff) == 0x15){
+                    patternFound = true;
+                    break;
+                }
+                startByte++;
+            }
+            // 如果找到的話
+            if (patternFound){
+                mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+                // 轉換16進制
+                byte[] uuidBytes = new byte[16];
+                // 來源，起始位置
+                System.arraycopy(scanRecord, startByte + 4, uuidBytes, 0, 16);
+                String hexString = bytesToHex(uuidBytes);
+
+                // UUID
+                String uuid = hexString.substring(0, 8) + "-"
+                        + hexString.substring(8, 12) + "-"
+                        + hexString.substring(12, 16) + "-"
+                        + hexString.substring(16, 20) + "-"
+                        + hexString.substring(20, 32);
+
+                // Major
+                int major = (scanRecord[startByte + 20] & 0xff) * 0x100
+                        + (scanRecord[startByte + 21] & 0xff);
+
+                // Minor
+                int minor = (scanRecord[startByte + 22] & 0xff) * 0x100
+                        + (scanRecord[startByte + 23] & 0xff);
+
+                String mac = device.getAddress();
+
+                // txpower
+                int txPower = (scanRecord[startByte + 24]);
+                double distance = calculateAccuracy(txPower, rssi);
+
+                Log.d(Tag, "Name：" + ibeaconName + "\nMac：" + mac
+                        + " \nUUID：" + uuid + "\nMajor：" + major + "\nMinor："
+                        + minor + "\nTxPower：" + txPower + "\nrssi：" + rssi);
+
+                Log.d(Tag,"distance："+calculateAccuracy(txPower,rssi));
+            }
         }
     };
+
+    // 將來源轉換為16進制
+    public String bytesToHex(byte[] bytes){
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++){
+            int v = bytes[j] & 0xff;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    //計算距離 :
+    //此方法是"即時"計算，所以很容易有大幅度的波動
+    //建議是 : 累加後均分這樣穩定度相對的高( 收集約 15 次以上後均分 )
+    public double calculateAccuracy(int txPower, double rssi) {
+        if (rssi == 0) {
+            return -1.0;
+        }
+
+        double ratio = rssi * 1.0 / txPower;
+
+        if (ratio < 1.0) {
+            return Math.pow(ratio, 10);
+        } else {
+            double accuracy = (0.89976) * Math.pow(ratio, 7.7095) + 0.111;
+            return accuracy;
+        }
+    }
 }
