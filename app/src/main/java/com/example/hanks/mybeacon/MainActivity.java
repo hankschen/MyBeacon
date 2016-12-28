@@ -117,17 +117,17 @@ public class MainActivity extends AppCompatActivity {
                 int minor = (scanRecord[startByte + 22] & 0xff) * 0x100
                         + (scanRecord[startByte + 23] & 0xff);
 
-                String mac = device.getAddress();
-
                 // txpower
                 int txPower = (scanRecord[startByte + 24]);
                 double distance = calculateAccuracy(txPower, rssi);
 
-                Log.d(Tag, "Name：" + ibeaconName + "\nMac：" + mac
+                Log.d("BLE",bytesToHex(scanRecord));
+
+                Log.d("BLE", "Name：" + device.getName() + "\nMac：" + device.getAddress()
                         + " \nUUID：" + uuid + "\nMajor：" + major + "\nMinor："
                         + minor + "\nTxPower：" + txPower + "\nrssi：" + rssi);
 
-                Log.d(Tag,"distance："+calculateAccuracy(txPower,rssi));
+                Log.d("BLE","distance："+calculateAccuracy(txPower,rssi));
             }
         }
     };
