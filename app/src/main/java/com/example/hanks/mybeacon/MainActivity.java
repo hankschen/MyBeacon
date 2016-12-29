@@ -46,13 +46,15 @@ public class MainActivity extends AppCompatActivity {
 
         //檢查手機是否開啟藍芽功能
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()){
-            Toast.makeText(this,"請開啟藍芽功能",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this,"請開啟藍芽功能",Toast.LENGTH_SHORT).show();
             //若沒有開啟則顯示允許用戶打開藍牙的系統活動
             Intent enableBluetooth = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
-        }else{
-            scanLeDevice(true);
         }
+
+        scanLeDevice(true);
+        //mBluetoothAdapter.startLeScan(mLeScanCallBack);
+
     }
 
     void findviews(){
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         scanLeDevice(false);
+        //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
     }
 
     // 掃瞄藍牙裝置自訂方法

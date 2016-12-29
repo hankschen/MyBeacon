@@ -19,38 +19,47 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="BytesToHex"
         android:id="@+id/tv1"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Name"
         android:id="@+id/tv2"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device MAC Address"
         android:id="@+id/tv3"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device UUID"
         android:id="@+id/tv4"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Major"
         android:id="@+id/tv5"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Minor"
         android:id="@+id/tv6"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Tx Power"
         android:id="@+id/tv7"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Rssi"
         android:id="@+id/tv8"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Device Distance"
         android:id="@+id/tv9"/>
 
     <ListView
