@@ -3,6 +3,9 @@ package com.example.hanks.mybeacon;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,6 +19,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 1000; // 掃描頻率10 seconds
+    private BluetoothLeScanner bluetoothLeScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+        // BluetoothLeScanner class must use up to API21
+        bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         //檢查手機硬體是否為BLE裝置
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)){
@@ -78,23 +86,46 @@ public class MainActivity extends AppCompatActivity {
         //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
     }
 
-    // 掃瞄藍牙裝置自訂方法
+    // 掃瞄藍牙裝置的自訂方法
     private void scanLeDevice(final boolean enable){
         if (enable){
             // postDelayed(Runnable r, long delayMillis)
             // Causes the Runnable r to be added to the message queue, to be run after the specified amount of time elapses.
-            // 在經過指定的delayMillis時間後，才將 "r" 加到消息佇列中
-            mHandler.postDelayed(new Runnable() {
+            // 導致Runnable r添加到消息隊列，以在指定的時間量過後運行。
+            Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+                    //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+                    bluetoothLeScanner.stopScan(scanCallback);
                 }
-            }, SCAN_PERIOD);
-            mBluetoothAdapter.startLeScan(mLeScanCallBack);
+            };
+            mHandler.postDelayed(runnable, SCAN_PERIOD);
+            //mBluetoothAdapter.startLeScan(mLeScanCallBack);
+            bluetoothLeScanner.startScan(scanCallback);
         }else {
-            mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+            //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+            bluetoothLeScanner.stopScan(scanCallback);
         }
     }
+
+    ScanCallback scanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            tvName.setText(result.getDevice().getName().toString());
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+            tvBytesToHex.setText(results.size());
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+        }
+    };
 
     private BluetoothAdapter.LeScanCallback mLeScanCallBack = new BluetoothAdapter.LeScanCallback() {
         @Override
