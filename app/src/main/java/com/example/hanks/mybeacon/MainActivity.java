@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 1000; // 掃描頻率10 seconds
-    private BluetoothLeScanner bluetoothLeScanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
         bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        // BluetoothLeScanner class must use up to API21
-        bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         //檢查手機硬體是否為BLE裝置
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)){
@@ -95,38 +92,16 @@ public class MainActivity extends AppCompatActivity {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
-                    bluetoothLeScanner.stopScan(scanCallback);
+                    mBluetoothAdapter.stopLeScan(mLeScanCallBack);
                 }
             };
             mHandler.postDelayed(runnable, SCAN_PERIOD);
-            //mBluetoothAdapter.startLeScan(mLeScanCallBack);
-            bluetoothLeScanner.startScan(scanCallback);
+            mBluetoothAdapter.startLeScan(mLeScanCallBack);
         }else {
-            //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
-            bluetoothLeScanner.stopScan(scanCallback);
+            mBluetoothAdapter.stopLeScan(mLeScanCallBack);
         }
     }
-
-    ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            tvName.setText(result.getDevice().getName().toString());
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            super.onBatchScanResults(results);
-            tvBytesToHex.setText(results.size());
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            super.onScanFailed(errorCode);
-        }
-    };
-
+    
     private BluetoothAdapter.LeScanCallback mLeScanCallBack = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
