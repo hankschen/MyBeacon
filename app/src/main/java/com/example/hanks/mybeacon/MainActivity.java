@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(enableBluetooth, REQUEST_ENABLE_BT);
         }
 
-        scanLeDevice(true);
-        //mBluetoothAdapter.startLeScan(mLeScanCallBack);
+        //scanLeDevice(true);
+        mBluetoothAdapter.startLeScan(mLeScanCallBack);
 
     }
 
@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        scanLeDevice(false);
-        //mBluetoothAdapter.stopLeScan(mLeScanCallBack);
+        //scanLeDevice(false);
+        mBluetoothAdapter.stopLeScan(mLeScanCallBack);
     }
 
     // 掃瞄藍牙裝置自訂方法
