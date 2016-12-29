@@ -12,9 +12,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.WindowDecorActionBar;
 import android.util.Log;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+
+    ListView listView;
+    TextView tvBytesToHex,tvName,tvMAC,tvUUID,tvMajor,tvMinor,tvTxpower,tvRssi,tvDistance;
 
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        findviews();
 
         mHandler = new Handler();
 
@@ -47,6 +53,19 @@ public class MainActivity extends AppCompatActivity {
         }else{
             scanLeDevice(true);
         }
+    }
+
+    void findviews(){
+        listView = (ListView)findViewById(R.id.listView);
+        tvBytesToHex = (TextView)findViewById(R.id.tv1);
+        tvName = (TextView)findViewById(R.id.tv2);
+        tvMAC = (TextView)findViewById(R.id.tv3);
+        tvUUID = (TextView)findViewById(R.id.tv4);
+        tvMajor = (TextView)findViewById(R.id.tv5);
+        tvMinor = (TextView)findViewById(R.id.tv6);
+        tvTxpower = (TextView)findViewById(R.id.tv7);
+        tvRssi = (TextView)findViewById(R.id.tv8);
+        tvDistance = (TextView)findViewById(R.id.tv9);
     }
 
     // App在onPause生命週期時，停止掃瞄
@@ -122,12 +141,21 @@ public class MainActivity extends AppCompatActivity {
                 double distance = calculateAccuracy(txPower, rssi);
 
                 Log.d("BLE",bytesToHex(scanRecord));
+                tvBytesToHex.setText("ByteToHex: " + bytesToHex(scanRecord));
 
                 Log.d("BLE", "Name：" + device.getName() + "\nMac：" + device.getAddress()
                         + " \nUUID：" + uuid + "\nMajor：" + major + "\nMinor："
                         + minor + "\nTxPower：" + txPower + "\nrssi：" + rssi);
+                tvName.setText("Device Name: " + device.getName());
+                tvMAC.setText("Device MAC: " + device.getAddress());
+                tvUUID.setText("UUID: " + uuid);
+                tvMajor.setText("Major: " + major);
+                tvMinor.setText("Minor: " + minor);
+                tvTxpower.setText("TxPower: " + txPower);
+                tvRssi.setText("Rssi: " + rssi);
 
-                Log.d("BLE","distance："+calculateAccuracy(txPower,rssi));
+                Log.d("BLE","distance："+calculateAccuracy(txPower, rssi));
+                tvDistance.setText("Distance: " + calculateAccuracy(txPower, rssi));
             }
         }
     };
